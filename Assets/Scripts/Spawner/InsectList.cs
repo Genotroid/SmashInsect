@@ -11,6 +11,12 @@ public class InsectList
     public Insect Insect => _insect;
     public int Count => _count;
 
+    public InsectList(Insect insect, int count)
+    {
+        _insect = insect;
+        _count = count;
+    }
+
     public void EnableInsect()
     {
         _count--;

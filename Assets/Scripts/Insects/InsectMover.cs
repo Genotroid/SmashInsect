@@ -6,7 +6,6 @@ public class InsectMover : MonoBehaviour
 {
     [SerializeField] private float _moveSpeed = 2f;
     [SerializeField] private float _angle = 30f;
-    [SerializeField] private float _changeAngleTime = 0.5f;
 
     private Rigidbody2D _rigidBody;
 
