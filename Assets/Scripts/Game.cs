@@ -13,16 +13,19 @@ public class Game : MonoBehaviour
     [SerializeField] private TMP_Text _levelUI;
 
     private SpawnArea _spawner;
+    private GameObject _spawnPool;
     private LevelBuilder _levelBuilder;
     private int _levelId;
     private int _score;
     private int _health;
+    private bool _isLevelComplete => _spawnPool.transform.childCount <= 1;
 
     private void Awake()
     {
         PlayerPrefs.SetInt("LevelId", 1);
         _levelBuilder = GetComponent<LevelBuilder>();
         _spawner = _levelBuilder.SpawnArea;
+        _spawnPool = _spawner.SpawnerPool;
         _levelId = GetLevelIdFromPrefs();
         _score = GetScoreFromPrefs();
         _health = GetHealthFromPrefs();
@@ -35,26 +38,47 @@ public class Game : MonoBehaviour
 
     private void OnEnable()
     {
-        _destroyer.InsectMissed += OnDangerInsectTape;
-        _spawner.SafeInsectTapped += OnSafeInsectTape;
-        _spawner.DangerInsectTapped += OnDangerInsectTape;
-        _spawner.AllInsectTapped += LevelComplete;
+        _destroyer.InsectMissed += InsectMiss;
+        _spawner.InsectSpawned += SpawnInsect;
     }
 
     private void OnDisable()
     {
-        _spawner.SafeInsectTapped -= OnSafeInsectTape;
-        _spawner.DangerInsectTapped -= OnDangerInsectTape;
-        _spawner.AllInsectTapped -= LevelComplete;
+        _destroyer.InsectMissed -= InsectMiss;
+        _spawner.InsectSpawned -= SpawnInsect;
     }
 
-    private void OnSafeInsectTape(Insect insect)
+    private void SpawnInsect(Insect insect)
+    {
+        insect.Smashed += SmashInsect;
+    }
+
+    private void InsectMiss(Insect insect)
+    {
+        if (insect.GetComponent<SafeInsect>())
+            DangerInsectSmash();
+        if (_isLevelComplete) 
+            LevelComplete();
+    }
+
+    private void SmashInsect(Insect insect)
+    {
+        if (insect.GetComponent<SafeInsect>())
+            SafeInsectSmash(insect);
+        else
+            DangerInsectSmash();
+
+        if (_isLevelComplete)
+            LevelComplete();
+    }
+
+    private void SafeInsectSmash(Insect insect)
     {
         _score += insect.Score;
         _scoreUI.text = _score.ToString();
     }
 
-    private void OnDangerInsectTape()
+    private void DangerInsectSmash()
     {
         PlayerPrefs.SetInt("PlayerHealth", --_health);
         _healthUI.text = _health.ToString();

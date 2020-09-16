@@ -12,11 +12,14 @@ public class Insect : MonoBehaviour, IPointerClickHandler
 
     public int Score => ScoreReward; 
 
-    public event UnityAction<Insect> Tapped;
+    public event UnityAction<Insect> Smashed;
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        Tapped?.Invoke(this);
-        Destroy(gameObject);
+        if (--Health <= 0)
+        {
+            Smashed?.Invoke(this);
+            Destroy(gameObject);
+        }
     }
 }

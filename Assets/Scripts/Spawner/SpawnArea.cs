@@ -12,9 +12,9 @@ public class SpawnArea : MonoBehaviour
     private float _colliderSizeX;
     private float _lastSpawnTime = 0f;
 
-    public event UnityAction<Insect> SafeInsectTapped;
-    public event UnityAction DangerInsectTapped;
-    public event UnityAction AllInsectTapped;
+    public event UnityAction<Insect> InsectSpawned;
+
+    public GameObject SpawnerPool => _spawnerPool;
 
     private void Start()
     {
@@ -42,19 +42,6 @@ public class SpawnArea : MonoBehaviour
         return result.gameObject.activeSelf != true;
     }
 
-    private void TapInsect(Insect insect)
-    {
-        if (insect.GetComponent<SafeInsect>())
-            SafeInsectTapped?.Invoke(insect);
-        else
-            DangerInsectTapped?.Invoke();
-
-        insect.Tapped -= TapInsect;
-
-        if (_spawnerPool.transform.childCount == 0)
-            AllInsectTapped?.Invoke();
-    }
-
     public void SetInsectList(InsectList[] insectList)
     {
         foreach(InsectList item in insectList)
@@ -63,7 +50,7 @@ public class SpawnArea : MonoBehaviour
             {
                 Vector3 spawnPoint = new Vector3(Random.Range(-_colliderSizeX, _colliderSizeX), transform.position.y, transform.position.z);
                 Insect insect = Instantiate(item.Insect, spawnPoint, item.Insect.gameObject.transform.rotation, _spawnerPool.transform);
-                insect.Tapped += TapInsect;
+                InsectSpawned?.Invoke(insect);
                 insect.gameObject.SetActive(false);
             }
         }

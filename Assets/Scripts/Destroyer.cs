@@ -5,12 +5,11 @@ using UnityEngine.Events;
 
 public class Destroyer : MonoBehaviour
 {
-    public event UnityAction InsectMissed;
+    public event UnityAction<Insect> InsectMissed;
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.GetComponent<SafeInsect>())
-            InsectMissed?.Invoke();
         Destroy(collision.gameObject);
+        InsectMissed?.Invoke(collision.GetComponent<Insect>());
     }
 }
